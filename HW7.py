@@ -1,8 +1,8 @@
 
-# Your name:
-# Your student id:
-# Your email:
-# List who you have worked with on this project:
+# Your name: Jackson Gelbard
+# Your student id: 45992636
+# Your email: jgelbard@umich.edu
+# List who you have worked with on this project: Amelia Learner and Jackson Gertner
 
 import unittest
 import sqlite3
@@ -53,7 +53,20 @@ def make_positions_table(data, cur, conn):
 #     created for you -- see make_positions_table above for details.
 
 def make_players_table(data, cur, conn):
-    pass
+    cur.execute("SELECT * FROM Positions")
+    positions = cur.fetchall()
+    position_dict = {}
+    for position in positions:
+        position_dict[position[1]] = position[0]
+    cur.execute("CREATE TABLE IF NOT EXISTS Players (id INTEGER PRIMARY KEY, name TEXT, position_id INTEGER, birthyear INTEGER, nationality TEXT)")
+    for player in data['squad']:
+        name = player['name']
+        position = player['position']
+        position_id = position_dict[position]
+        birthyear = int(player['dateOfBirth'][:4])
+        nationality = player['nationality']
+        cur.execute("INSERT OR IGNORE INTO Players (id, name, position_id, birthyear, nationality) VALUES (?, ?, ?, ?, ?)", (player["id"], name, position_id, birthyear, nationality))
+    conn.commit()
 
 ## [TASK 2]: 10 points
 # Finish the function nationality_search
@@ -66,7 +79,14 @@ def make_players_table(data, cur, conn):
         # the player's name, their position_id, and their nationality.
 
 def nationality_search(countries, cur, conn):
-    pass
+    lst = []
+    for country in countries:
+        cur.execute("SELECT name, position_id, nationality FROM Players WHERE nationality = ?", (country,))
+        players = cur.fetchall()
+        for player in players:
+            lst.append(player)
+    conn.commit()
+    return lst
 
 ## [TASK 3]: 10 points
 # finish the function birthyear_nationality_search
@@ -85,6 +105,7 @@ def nationality_search(countries, cur, conn):
 
 
 def birthyear_nationality_search(age, country, cur, conn):
+    
     pass
 
 ## [TASK 4]: 15 points
